@@ -40,7 +40,6 @@ public abstract class Enemy {
     public void takeDamage(int amt) { health -= amt; }
 
     public Rectangle getBounds() {
-    // TODO: return actual hitbox once sprite size is decided
 
         return new Rectangle(x, y, 48, 48);}
 }
