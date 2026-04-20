@@ -68,7 +68,6 @@ public class BossEnemy extends Enemy{
             return ImageIO.read(getClass().getResource("/images/bossEnemy.png"));
         } catch (IOException | IllegalArgumentException e) {
             // returns null if image not found —
-            // teammate's paintComponent will draw a rectangle as fallback
             return null;
         }
     }
