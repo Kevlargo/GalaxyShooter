@@ -54,7 +54,6 @@ public BufferedImage getSprite() {
         return ImageIO.read(getClass().getResource("/images/basicEnemy.png"));
     } catch (IOException | IllegalArgumentException e) {
         // if image not found, returns null —
-        // teammate's paintComponent draws a red rectangle as fallback
         return null;
     }
 }
