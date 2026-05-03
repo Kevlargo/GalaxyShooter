@@ -1,6 +1,4 @@
 import java.util.List;
-import java.util.List;
-import java.util.ArrayList;
 
 //  Level1.java
  // Concrete subclass of Level — extends Level.
@@ -11,9 +9,15 @@ import java.util.ArrayList;
  // getEnemies(), getLevelNumber().
 
 public class Level1 extends Level {
-
+    private static final int KILLS_REQUIRED = 10;
+    private static final int MAX_ON_SCREEN = 5;
+    private static final int SPAWN_INTERVAL = 120;
+    private static final int MIN_SPACING = 90; // min px between enemies
+    
     // reference to the game's bullet list so enemies can shoot into it
     private List<Bullet> gameBullets;
+    private int killCount = 0;
+    private int spawnTimer = 0;
 
     // Constructor
     // Creates Level1.
@@ -43,16 +47,54 @@ public class Level1 extends Level {
         }
     }
 
+    /* Pick a random X that is at least MIN_SPACING  away from every linve enemy */
+    private void spawnOne() {
+        int x = findSafeX();
+        enemies.add(new BasicEnemy(x,-60,gameBullets));
+    }
+
+    private int findSafeX() {
+        int attempts = 20;
+        while (attempts-- > 0) {
+            int candidate = (int)(Math.random() * (700-48));
+            boolean clear = true;
+            for (Enemy e : enemies) {
+                if (Math.abs(e.getX() - candidate) < MIN_SPACING) {
+                    clear = false;
+                    break;
+                }
+            }
+            if (clear) return candidate;
+        }
+
+        // Fallback just pick a random pos
+        return (int)(Math.random() * (700-48));
+    }
+
+    @Override
+    public void update() {
+        if (isComplete()) return;
+        enemies.removeIf(e -> e.getY() > 820);
+        spawnTimer++;
+        if (spawnTimer >= SPAWN_INTERVAL){
+            spawnTimer = 0;
+            if (enemies.size() < MAX_ON_SCREEN) spawnOne();
+        }
+    }
+
     //Returns true when every enemy in this level is dead.
     //Called by the game loop EVERY FRAME to check win condition.
      // When true, the game loads Level2.
      //
      // @return boolean — true when all enemies have health <= 0
 
+    @Override public void onEnemyKilled() { killCount++; }
+    @Override public int getKillCount() { return killCount; }
+    @Override public int getKillsRequired() {return KILLS_REQUIRED; }
     @Override
     public boolean isComplete() {
         // stream through all enemies — level is complete when every one isDead()
-        return enemies.stream().allMatch(e -> e.isDead());
+        return killCount >= KILLS_REQUIRED;
     }
 
 } // end Level1

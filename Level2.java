@@ -1,6 +1,5 @@
 import java.util.List;
-import java.util.List;
-import java.util.ArrayList;
+
 // Level2.java
  // Concrete subclass of Level — extends Level.
  //The second level of Galaxy Shooter — harder than Level1.
@@ -11,8 +10,16 @@ import java.util.ArrayList;
 
 public class Level2 extends Level {
 
+    private static final int KILLS_REQUIRED = 20;
+    private static final int MAX_ON_SCREEN = 6;
+    private static final int SPAWN_INTERVAL = 90;
+    private static final int BOSS_SPAWN_AT = 10;
+    private static final int MIN_SPACING = 80;
     // reference to the game's bullet list so enemies can shoot into it
     private List<Bullet> gameBullets;
+    private int killCount = 0;
+    private int spawnTimer = 0;
+    private boolean bossSpawned = false;
 
     // Constructor
     //Creates Level2.
@@ -27,45 +34,60 @@ public class Level2 extends Level {
     }
 
     // Abstract Method
-
-    //Spawns two rows of BasicEnemies and one BossEnemy.
-     // Called ONCE by the game when Level 2 starts loading.
-
-    //  Row 1 — 4 BasicEnemies at y = 60  (top row)
-     // Row 2 — 4 BasicEnemies at y = 130 (second row below)
-     //Boss at y = 220 (center of screen, below both rows)
-     // All enemies are added to the inherited enemies list.
     @Override
     public void spawnEnemies() {
-        // first row — 4 BasicEnemies near the top
-        for (int i = 0; i < 4; i++) {
-            int spawnX = 80 + i * 120;  // spaced 120px apart across the screen
-            int spawnY = 60;            // top row
-            enemies.add(new BasicEnemy(spawnX, spawnY, gameBullets));
-        }
-
-        // second row — 4 more BasicEnemies slightly lower
-        for (int i = 0; i < 4; i++) {
-            int spawnX = 80 + i * 120;  // same spacing as row 1
-            int spawnY = 130;           // 70px below the first row
-            enemies.add(new BasicEnemy(spawnX, spawnY, gameBullets));
-        }
-
-        // boss — spawned in the center below both rows
-        // x = 268 centers a 64px wide boss on a 600px wide screen
-        enemies.add(new BossEnemy(268, 230, gameBullets));
+       int cols = MAX_ON_SCREEN;
+       int colW = (700-48) / cols;
+       for (int i = 0; i < cols; i++) {
+        int x = i * colW + (int)(Math.random() * (colW - 48));
+        int y = -60 - i * 60;
+        enemies.add(new BasicEnemy(x,y,gameBullets));
+       }
     }
 
-    //Returns true when every enemy including the boss is dead.
-     // Called by the game loop EVERY FRAME to check win condition.
-     // When true, the game can show a win screen or load Level3.
+    private void spawnBasic() {
+        int x = findSafeX();
+        enemies.add(new BasicEnemy(x,-60,gameBullets));
+    }
 
-     // @return boolean — true when all enemies have health <= 0
+    private int findSafeX() {
+        int attempts = 20;
+        while (attempts-- > 0) {
+            int candidate = (int)(Math.random() * (700-48));
+            boolean clear = true;
+            for (Enemy e : enemies) {
+                if (Math.abs(e.getX() - candidate) < MIN_SPACING) { clear = false; break;}
+            }
+            if (clear) return candidate;
+        }
+        return (int)(Math.random() * (700-48));
+    }
 
     @Override
+    public void update() {
+        if (isComplete()) return;
+        enemies.removeIf(e -> e.getY() > 820);
+
+        if (!bossSpawned & killCount >= BOSS_SPAWN_AT) {
+            enemies.add(new BossEnemy(268, -80, gameBullets));
+            bossSpawned = true;
+        }
+
+        spawnTimer++;
+        if (spawnTimer >= SPAWN_INTERVAL) {
+            spawnTimer = 0;
+            boolean bossAlive = enemies.stream().anyMatch(e -> e instanceof BossEnemy);
+            int cap = bossAlive ? MAX_ON_SCREEN -1 : MAX_ON_SCREEN;
+            if (enemies.size() < cap) spawnBasic();
+        }
+    }
+
+    @Override public void onEnemyKilled() { killCount++; }
+    @Override public int getKillCount() { return killCount; }
+    @Override public int getKillsRequired() { return KILLS_REQUIRED;}
+    @Override
     public boolean isComplete() {
-        // stream through all enemies — level is complete when every one isDead()
-        return enemies.stream().allMatch(e -> e.isDead());
+        return killCount >= KILLS_REQUIRED;
     }
 
 } 

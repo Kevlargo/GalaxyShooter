@@ -1,4 +1,5 @@
 
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -29,11 +30,13 @@ public abstract class Bullet {
     // Move bullet position each frame — direction depends on subclass */
     public abstract void update();
 
+    // draw this bullet at its current position
+    public abstract void draw(Graphics2D g);
+
     // Sprite image drawn by paintComponent every frame */
     public abstract BufferedImage getSprite();
 
     // Concrete Methods
-
 
     // Returns current X position
     public int getX() { return x; }

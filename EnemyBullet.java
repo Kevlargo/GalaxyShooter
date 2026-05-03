@@ -1,5 +1,5 @@
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import javax.imageio.ImageIO;
 
 // EnemyBullet.java
@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 
 public class EnemyBullet extends Bullet {
 
+    private final BufferedImage sprite;
     // Constructor
     // Creates an EnemyBullet at the given position.
      // Spawned just below the enemy that fired it via shoot().
@@ -22,6 +23,14 @@ public class EnemyBullet extends Bullet {
         super(x, y);        // calls Bullet constructor — sets x, y, active = true
         this.speed  = 5;    // moves 5 pixels down per frame — slower than player bullets
         this.damage = 1;    // deals 1 damage to the player on hit
+
+        BufferedImage loaded = null;
+        try {
+            loaded = ImageIO.read(getClass().getResource("/images/enemyBullet.png"));
+        } catch (Exception e) {
+            // fallback will be used in draw()
+        }
+        this.sprite = loaded;
     }
 
     //Abstract Methods
@@ -43,13 +52,20 @@ public class EnemyBullet extends Bullet {
 
     @Override
     public BufferedImage getSprite() {
-        try {
-            // load enemy bullet image from resources folder
-            return ImageIO.read(getClass().getResource("/images/enemyBullet.png"));
-        } catch (IOException | IllegalArgumentException e) {
-            // image not found
-            return null;
+      return sprite;
+    }
+    
+    @Override
+    public void draw(Graphics2D g) {
+        if (sprite != null) {
+            g.drawImage(sprite, x, y, 6, 16, null);
+        } else {
+            // Orange-red bullet with a soft glow
+            g.setColor(new Color(255, 140, 0, 80));
+            g.fillRect(x - 2, y - 2, 10, 20);
+            g.setColor(new Color(255, 80, 0));
+            g.fillRect(x, y, 6, 16);
         }
     }
-
 }
+

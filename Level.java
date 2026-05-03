@@ -1,4 +1,5 @@
-
+// TODO: LEFT OFF HERE
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,21 +27,51 @@ public abstract class Level {
    // Each subclass (Level1, Level2) adds its own Enemy types and positions here.
     public abstract void spawnEnemies();
 
+    /**
+     * Called once per frame by GamePanel (after collision + dead-enemy removal).
+     * Responsible for: culling off-screen enemies, ticking the spawn timer,
+     * and adding new enemies when the timer fires.
+     */
+    public abstract void update();
+
+    /* called by gamepanel each time a kill is confirmed */
+    public abstract void onEnemyKilled();
+
+    /** @return  kills so far -used by the HUG progress bar */
+    public abstract int getKillCount();
 
      // Returns true when this level is finished and the next should load.
      // Called by the game loop EVERY FRAME to check win condition.
     public abstract boolean isComplete();
 
-    // Concrete methods
+    /** @return total kills required - usd by the HUD progress bar */
+    public abstract int getKillsRequired();
 
-    // Returns the full list of enemies for this level.
-     // Called by the game loop EVERY FRAME to:
-     // 1. call update() on each enemy — moves them and handles shooting
-     // 2. check collisions with player bullets via getBounds().intersects()
-     //  3. remove dead enemies via removeIf(Enemy::isDead)
-     //  4. draw each enemy via paintComponent using getSprite()
 
-    public List<Enemy> getEnemies() { return enemies; }
+    /**
+     * Draws enemey in this level.
+     * uses a snapshot copy so drawing can never cause a ConcurrentModificationException
+     * even if the enemy list is changed somewhere else in the same frame
+     */
+    public void draw(Graphics2D g) {
+        List<Enemy> snapshot = new ArrayList<>(enemies); // shallow copy
+        for (Enemy e : snapshot) {
+            e.draw(g);
+        }
+    }
+
+    // Concrete methods shared by all levels
+
+      /**
+     * Returns a snapshot copy of the enemy list.
+     * GamePanel iterates this snapshot — it never iterates the live list —
+     * so removing dead enemies from the live list mid-frame is always safe.
+     */
+    public List<Enemy> getEnemiesSnapshot() { return new ArrayList<>(enemies); }
+
+    public void removeDeadEnemies() {
+        enemies.removeIf(Enemy::isDead);
+    }
 
     // Returns which level number this is (1, 2, 3...).
     public int getLevelNumber() { return levelNumber; }

@@ -1,7 +1,6 @@
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.util.List;
 import javax.imageio.ImageIO;
 
@@ -11,13 +10,23 @@ public class BasicEnemy extends Enemy{
     private static final int SHOOT_INTERVAL = 90; // fires every 90 frames
 
     // reference to the game's bullet list so shoot() can add to it
-    private List<Bullet> gameBullets;
+    private final List<Bullet> gameBullets;
+    private final BufferedImage sprite;
 
     public BasicEnemy(int x, int y, List<Bullet> gameBullets) {
         super(x, y);
         this.health      = 2;    // takes 2 player bullets to kill
+        this.maxHealth   = 2;
         this.speed       = 2;    // moves 2 pixels downward per frame
         this.gameBullets = gameBullets;
+
+        BufferedImage loaded = null;
+        try {
+            loaded = ImageIO.read(getClass().getResource("/images/basicEnemy.png"));
+        } catch (Exception e) {
+            // fallback
+        }
+        this.sprite = loaded;
     }
 
 
@@ -50,12 +59,21 @@ public int getPoints() {
 @Override
 public BufferedImage getSprite() {
     // loads the enemy sprite image from the /images/ resources folder
-    try {
-        return ImageIO.read(getClass().getResource("/images/basicEnemy.png"));
-    } catch (IOException | IllegalArgumentException e) {
-        // if image not found, returns null —
-        return null;
+    return sprite;
+}
+
+@Override
+public void draw(Graphics2D g) {
+    if (sprite != null) {
+        g.drawImage(sprite,x,y,48,48,null);
+    } else {
+        g.setColor(new Color(180,0,220));
+        g.fillRect(x,y,48,48);
+        g.setColor(new Color(255,50,50));
+        g.fillOval(x + 10, y + 14, 10, 10);
+        g.fillOval(x + 28, y + 14, 10, 10);
     }
+    drawHealthBar(g,x,y-8,48);
 }
 
 @Override
