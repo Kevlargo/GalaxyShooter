@@ -1,7 +1,7 @@
-# GalaxyShooter
+# Galaxy Shooter
 **CS 3354 – Object‑Oriented Design Project**
 
-GalaxyShooter is a 2D space‑shooter game implemented in Java using Swing.  
+Galaxy Shooter is a 2D space‑shooter game implemented in Java using Swing.  
 ---
 
 ## Features
