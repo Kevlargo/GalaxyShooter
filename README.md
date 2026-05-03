@@ -9,9 +9,10 @@ Galaxy Shooter is a 2D space‑shooter game implemented in Java using Swing.
 ## Screenshots
 
 <p align="center">
-  <img src="images/gameplay1.png" width="300">
-  <img src="images/boss_gameplay.png" width="300">
+  <img src="images/gameplay1.png" width="450">
+  <img src="images/boss_gameplay.png" width="450">
 </p>
+
 ---
 ## Features
 - Smooth player movement and shooting
