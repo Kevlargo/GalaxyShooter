@@ -1,5 +1,5 @@
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import javax.imageio.ImageIO;
 
 // PlayerBullet.java
@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
  //  getX(), getY(), getDamage(), isActive(), deactivate(), getBounds().
 public class PlayerBullet extends Bullet {
 
+    private final BufferedImage sprite;
 // Constructor
 
      //Creates a PlayerBullet at the given position.
@@ -22,6 +23,14 @@ public class PlayerBullet extends Bullet {
         super(x, y);        // calls Bullet constructor — sets x, y, active = true
         this.speed  = 8;    // moves 8 pixels up per frame — fast and snappy
         this.damage = 1;    // deals 1 damage to enemy on hit
+
+        BufferedImage loaded = null;
+        try {
+            loaded = ImageIO.read(getClass().getResource("/images/playerBullter.png"));
+        } catch (Exception e) {
+            // fallback
+        }
+        this.sprite = loaded;
     }
 
 // Abstract method
@@ -37,19 +46,21 @@ public class PlayerBullet extends Bullet {
     }
 
 
-     // Returns the sprite image for this bullet.
-     //Called by paintComponent() EVERY FRAME to draw the bullet.
-     //Loads playerBullet.png from the /images/ resources folder.
-     //Returns null if image not found —
-
     @Override
     public BufferedImage getSprite() {
-        try {
-            // load player bullet image from resources folder
-            return ImageIO.read(getClass().getResource("/images/playerBullet.png"));
-        } catch (IOException | IllegalArgumentException e) {
-            // image not found
-            return null;
+       return sprite;
+    }
+
+
+    @Override
+    public void draw(Graphics2D g) {
+        if (sprite != null) {
+            g.drawImage(sprite,x,y, 6,16,null);
+        } else {
+            g.setColor(new Color(255,255,150,80));
+            g.fillRect(x-2,y-2,10,20);
+            g.setColor(new Color(255,255,0));
+            g.fillRect(x,y,6,16);
         }
     }
 
